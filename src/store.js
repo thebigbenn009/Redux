@@ -1,4 +1,4 @@
-import { createStore } from "redux";
+import { combineReducers, createStore } from "redux";
 const initialStateAccount = {
   balance: 0,
   loan: 0,
@@ -40,7 +40,7 @@ const customerReducer = (state = initialStateCustomer, action) => {
     case "customer/createCustomer":
       return {
         ...state,
-        fullName: action.payload.name,
+        fullName: action.payload.fullName,
         nationalID: action.payload.nationalID,
         createdAt: action.payload.createdAt,
       };
@@ -50,13 +50,34 @@ const customerReducer = (state = initialStateCustomer, action) => {
       return state;
   }
 };
-const store = createStore(accountReducer);
+const rootReducer = combineReducers({
+  account: accountReducer,
+  customer: customerReducer,
+});
+const store = createStore(rootReducer);
 const deposit = (amount) => {
   return { type: "account/deposit", payload: amount };
 };
 const withdraw = (amount) => {
   return { type: "account/withdraw", payload: amount };
 };
+
+store.dispatch(deposit(500));
+store.dispatch(withdraw(200));
+console.log(store.getState());
+
+const createCustomer = (fullName, nationalID) => {
+  return {
+    type: "customer/createCustomer",
+    payload: { fullName, nationalID, createdAt: new Date().toISOString() },
+  };
+};
+const updateName = (fullName) => {
+  return { type: "account/updateName", payload: fullName };
+};
+store.dispatch(createCustomer("Benedict", "ENG1708899"));
+console.log(store.getState());
+
 // store.dispatch({ type: "account/deposit", payload: 500 });
 
 // store.dispatch({ type: "account/withdraw", payload: 200 });
@@ -67,16 +88,3 @@ const withdraw = (amount) => {
 // });
 // console.log(store.getState());
 // store.dispatch({ type: "account/payLoan" });
-store.dispatch(deposit(500));
-store.dispatch(withdraw(200));
-console.log(store.getState());
-
-const CreateCustomer = (fullName, nationalID) => {
-  return {
-    type: "customer/createCustomer",
-    payload: { fullName, nationalID, createdAt: new Date().toISOString() },
-  };
-};
-const updateName = (fullName) => {
-  return { type: "account/updateName", payload: fullName };
-};
